@@ -1,16 +1,6 @@
-//https://aws.amazon.com/getting-started/hands-on/build-serverless-web-app-lambda-apigateway-s3-dynamodb-cognito/module-1/
-variable "profile" {
-  default = "staging"
-}
-
-provider "aws" {
-  version = "~> 2.0"
-  region  = "us-east-1"
-  profile = var.profile
-}
-
 resource "aws_s3_bucket" "bucket" {
   bucket_prefix = "serverless-bucket"
+  force_destroy = true
 
   website {
     index_document = "index.html"
@@ -36,10 +26,10 @@ POLICY
 }
 
 output "frontend" {
-  value = aws_s3_bucket.bucket.website_endpoint
+  value = "http://${aws_s3_bucket.bucket.website_endpoint}"
 }
 
-resource "null_resource" "create-endpoint" {
+resource "null_resource" "assets" {
   provisioner "local-exec" {
     command = "aws s3 sync ../WebApplication/1_StaticWebHosting/website/ s3://${aws_s3_bucket.bucket.bucket} --profile ${var.profile}"
   }
